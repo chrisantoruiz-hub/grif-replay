@@ -849,8 +849,10 @@ int fill_singles_histos(Dragon_event *ptr)
          printf("\n");
          for(i = 0; i < 16; i++){
              for(j = 16; j < 32; j++){
-                 if( tail->dssd_energy[i] > 0 && tail->dssd_energy[j] > 0 )
+                 if( tail->dssd_energy[i] > 0 && tail->dssd_energy[j] > 0 ){
+                     printf("  -> filling dssd_hit_pat at (%d, %d)\n", i, j-16);
                      dssd_hit_pat->Fill(dssd_hit_pat, i, j-16, 1);
+                 }
              }
          }
          // MCP
