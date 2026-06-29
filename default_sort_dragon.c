@@ -842,6 +842,11 @@ int fill_singles_histos(Dragon_event *ptr)
              if( tail->dssd_energy[i] > 0 )
                  dssd_echan->Fill(dssd_echan, tail->dssd_energy[i], i, 1);
          }
+         printf("DSSD singles hit_pat debug: X hits=");
+         for(i = 0; i < 16; i++) if( tail->dssd_energy[i] > 0 ) printf("%d ", i);
+         printf("| Y hits=");
+         for(i = 16; i < 32; i++) if( tail->dssd_energy[i] > 0 ) printf("%d ", i);
+         printf("\n");
          for(i = 0; i < 16; i++){
              for(j = 16; j < 32; j++){
                  if( tail->dssd_energy[i] > 0 && tail->dssd_energy[j] > 0 )
@@ -928,6 +933,11 @@ int fill_coinc_histos(int win_idx, int frag_idx)
         for(i = 16; i < 32; i++){
             if( tail->dssd_energy[i] > 0 ) e_back_c->Fill(e_back_c, tail->dssd_energy[i], 1);
         }
+        printf("DSSD coinc hit_pat debug: X hits=");
+        for(i = 0; i < 16; i++) if( tail->dssd_energy[i] > 0 ) printf("%d ", i);
+        printf("| Y hits=");
+        for(i = 16; i < 32; i++) if( tail->dssd_energy[i] > 0 ) printf("%d ", i);
+        printf("\n");
         for(i = 0; i < 16; i++){
             for(j = 16; j < 32; j++){
                 if( tail->dssd_energy[i] > 0 && tail->dssd_energy[j] > 0 )
