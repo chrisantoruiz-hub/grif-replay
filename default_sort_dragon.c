@@ -851,7 +851,7 @@ int fill_singles_histos(Dragon_event *ptr)
              for(j = 16; j < 32; j++){
                  if( tail->dssd_energy[i] > 0 && tail->dssd_energy[j] > 0 ){
                      printf("  -> filling dssd_hit_pat at (%d, %d)\n", i, j-16);
-                     dssd_hit_pat->Fill(dssd_hit_pat,i, j-16, 1);
+                     dssd_hit_pat->Fill(dssd_hit_pat, (float)i, (float)(j-16), 1);
                  }
              }
          }
@@ -943,7 +943,7 @@ int fill_coinc_histos(int win_idx, int frag_idx)
         for(i = 0; i < 16; i++){
             for(j = 16; j < 32; j++){
                 if( tail->dssd_energy[i] > 0 && tail->dssd_energy[j] > 0 )
-                    dssd_hit_pat_c->Fill(dssd_hit_pat_c, i, j-16, 1);
+                    dssd_hit_pat_c->Fill(dssd_hit_pat_c, (float)i, (float)(j-16), 1);
             }
         }
         for(i = 0; i < DSSD_MAXCHAN; i++){
