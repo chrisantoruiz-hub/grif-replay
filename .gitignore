@@ -1,0 +1,16 @@
+# Build artifacts
+*.o
+*.so
+
+# Compiled binaries
+dragon-replay
+grif-replay
+tar2ascii
+
+# MIDAS data files
+*.mid
+*.tar
+
+# Runtime output
+reorder.log
+last.json
