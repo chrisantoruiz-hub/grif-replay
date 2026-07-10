@@ -688,6 +688,8 @@ TH1I  *ic_sum;
 TH2I  *ic_0v1;
 TH2I  *ic_anode;
 
+TH2I  *ic_sum_vs_dssd_efront;
+
 TH1I  *nai_ecal[2]; char *nai_title="";
 
 TH1I  *e_front_c;
@@ -701,6 +703,8 @@ TH1I  *mcp_tac_c;
 TH1I  *ic_sum_c;
 TH2I  *ic_0v1_c;
 TH2I  *ic_anode_c;
+
+TH2I  *ic_sum_vs_dssd_efront_c;
 
 TH1I  *xtofh;  // gamma to hvy-ion
 TH1I  *xtofg;  // hvy-ion to gamma
@@ -733,19 +737,22 @@ int init_histos(Config *cfg)
       sb_ecal[i] = H1_BOOK(cfg, hnd, title, ADC_BINS, 0, ADC_BINS);
     }
     // DSSD Histograms
-    e_front = H1_BOOK(cfg, "E_front", "DSSD Front Strip Energy", 4096, 0, 4096);
-    e_back  = H1_BOOK(cfg, "E_back", "DSSD Back Strip Energy", 4096, 0, 4096);
+    e_front = H1_BOOK(cfg, "E_front", "DSSD Front Strip Energy", 1024, 0, 4096);
+    e_back  = H1_BOOK(cfg, "E_back", "DSSD Back Strip Energy", 1024, 0, 4096);
     dssd_hit_pat = H2_BOOK(cfg, "dssd_hit_pat", "DSSD Hit Pattern", 16, 0, 16, 16, 0, 16);
-    dssd_echan   = H2_BOOK(cfg, "dssd_echan", "DSSD Channel vs Energy", 2048, 0, 4096, DSSD_MAXCHAN, 0, DSSD_MAXCHAN);
+    dssd_echan   = H2_BOOK(cfg, "dssd_echan", "DSSD Channel vs Energy", 1024, 0, 4096, DSSD_MAXCHAN, 0, DSSD_MAXCHAN);
     
     // MCP Histograms
     mcp_tdc = H1_BOOK(cfg, "MCP_TDC", "MCP TDC (TOF)", 4096, 0, 4096);
     mcp_tac = H1_BOOK(cfg, "MCP_TAC", "MCP TAC (TOF)", 4096, 0, 4096);
     
     // IC Histograms
-    ic_sum   = H1_BOOK(cfg, "IC_SUM",   "Summed Energy Loss in Ion Chamber", ADC_BINS, 0, ADC_BINS);
-    ic_0v1   = H2_BOOK(cfg, "IC_0v1",   "Ion Chamber Energy 0 vs 1", ADC_BINS, 0, ADC_BINS, ADC_BINS, 0, ADC_BINS);
-    ic_anode = H2_BOOK(cfg, "IC_anode",   "Ion Chamber Energy vd Anode Number", 4096, 0, 4096, 4, 0, 4);
+    ic_sum   = H1_BOOK(cfg, "IC_SUM",   "Summed Energy Loss in Ion Chamber", 1024, 0, 4096);
+    ic_0v1   = H2_BOOK(cfg, "IC_0v1",   "Ion Chamber Energy 0 vs 1", 512, 0, 4096, 512, 0, 4096);
+    ic_anode = H2_BOOK(cfg, "IC_anode",   "Ion Chamber Energy vd Anode Number", 512, 0, 4096, 4, 0, 4);
+    
+    // IC vs DSSD (for Hybrid)
+    ic_sum_vs_dssd_efront = H2_BOOK(cfg, "IC_Sum_vs_Dssd_E_front","IC Sum energy vs DSSD Front energy", 512, 0, 4096, 512, 0, 4096 );
     
     // NaI Histograms
     for(i=0; i<2; i++){
@@ -768,15 +775,18 @@ int init_histos(Config *cfg)
     open_folder(cfg, "Basic");
     
     // DSSD Coincidence Histograms
-    e_front_c  = H1_BOOK(cfg, "E_front_c",     "DSSD Front Strip Energy (coinc)", 4096, 0, 4096);
-    e_back_c   = H1_BOOK(cfg, "E_back_c",      "DSSD Back Strip Energy (coinc)",  4096, 0, 4096);
+    e_front_c  = H1_BOOK(cfg, "E_front_c",     "DSSD Front Strip Energy (coinc)", 1024, 0, 4096);
+    e_back_c   = H1_BOOK(cfg, "E_back_c",      "DSSD Back Strip Energy (coinc)",  1024, 0, 4096);
     dssd_hit_pat_c = H2_BOOK(cfg, "dssd_hit_pat_c", "DSSD Hit Pattern (coinc)",   16, 0, 16, 16, 0, 16);
-    dssd_echan_c   = H2_BOOK(cfg, "dssd_echan_c",   "DSSD Channel vs Energy (coinc)", 4096, 0, 4096, DSSD_MAXCHAN, 0, DSSD_MAXCHAN);
+    dssd_echan_c   = H2_BOOK(cfg, "dssd_echan_c",   "DSSD Channel vs Energy (coinc)", 1024, 0, 4096, DSSD_MAXCHAN, 0, DSSD_MAXCHAN);
       
     // IC Coincidence Histograms
-    ic_sum_c   = H1_BOOK(cfg, "IC_SUM_c",        "Summed IC Energy Loss",         ADC_BINS, 0, ADC_BINS);
-    ic_0v1_c   = H2_BOOK(cfg, "IC_0v1_c",        "IC Energy 0 vs 1",              ADC_BINS, 0, ADC_BINS, ADC_BINS, 0, ADC_BINS);
-    ic_anode_c = H2_BOOK(cfg, "IC_anode_c",      "IC Energy vs Anode",            4096, 0, 4096, 4, 0, 4);
+    ic_sum_c   = H1_BOOK(cfg, "IC_SUM_c",        "Summed IC Energy Loss",         1024, 0, 4096);
+    ic_0v1_c   = H2_BOOK(cfg, "IC_0v1_c",        "IC Energy 0 vs 1",              512, 0, 4096, 512, 0, 4096);
+    ic_anode_c = H2_BOOK(cfg, "IC_anode_c",      "IC Energy vs Anode",            512, 0, 4096, 4, 0, 4);
+    
+    // IC vs DSSD (for Hybrid)
+    ic_sum_vs_dssd_efront_c = H2_BOOK(cfg, "IC_Sum_vs_Dssd_E_front_c","IC Sum energy vs DSSD Front energy", 512, 0, 4096, 512, 0, 4096 );
     
     // MCP Coincidence Histograms
     mcp_tdc_c    = H1_BOOK(cfg, "MCP_TDC_c",    "MCP TDC (coinc)",               4096, 0, 4096);
@@ -806,7 +816,7 @@ int fill_singles_histos(Dragon_event *ptr)
    Head_data *head = &ptr->head_tail_data.head_data;
    Tail_data *tail = &ptr->head_tail_data.tail_data;
    int i, j, chan, val, cnt;
-   float v_cal, sum;
+   float v_cal, sum, dssd_front_e;
 
    if( ptr->type == HEAD_EVENT ){
       
@@ -842,10 +852,13 @@ int fill_singles_histos(Dragon_event *ptr)
              if( tail->dssd_energy[i] > 0 )
                  dssd_echan->Fill(dssd_echan, tail->dssd_energy[i], i, 1);
          }
+         dssd_front_e = 0;
          for(i = 0; i < 16; i++){
              for(j = 16; j < 32; j++){
-                 if( tail->dssd_energy[i] > 0 && tail->dssd_energy[j] > 0 )
+                 if( tail->dssd_energy[i] > 0 && tail->dssd_energy[j] > 0 ){
                      dssd_hit_pat->Fill(dssd_hit_pat, i, j-16, 1);
+                     if( tail->dssd_energy[i] > dssd_front_e ) dssd_front_e = tail->dssd_energy[i];
+                 }
              }
          }
          // MCP
@@ -855,6 +868,7 @@ int fill_singles_histos(Dragon_event *ptr)
          sum = 0;
          for(i = 0; i < IC_MAXCHAN; i++){ sum += tail->ic_energy[i]; }
          ic_sum->Fill(ic_sum, (int)sum, 1);
+         if( dssd_front_e > 0 ) ic_sum_vs_dssd_efront->Fill(ic_sum_vs_dssd_efront, dssd_front_e, (int)sum, 1);
          if( tail->ic_energy[0] > 0 && tail->ic_energy[1] > 0 )
              ic_0v1->Fill(ic_0v1, tail->ic_energy[0], tail->ic_energy[1], 1);
          for(i = 0; i < IC_MAXCHAN; i++){
@@ -865,11 +879,7 @@ int fill_singles_histos(Dragon_event *ptr)
          for(i = 0; i < NAI_MAXCHAN; i++){
              if( tail->nai_energy[i] > 0 ) nai_ecal[i]->Fill(nai_ecal[i], tail->nai_energy[i], 1);
          }
-      //sum = 0; for(i=0; i<IC_MAXCHAN; i++){ sum += tail->ic_energy[i]; }  // moved to coinc
-      //ic_sum->Fill(ic_sum, (int)sum, 1);
-      //if( tail->ic_energy[0] > 0 && tail->ic_energy[1] > 0 ){
-      //   ic_0v1->Fill(ic_0v1, tail->ic_energy[0], tail->ic_energy[1], 1 );
-      //}
+    
    }
    return(0);
 }
@@ -881,7 +891,7 @@ int fill_coinc_histos(int win_idx, int frag_idx)
    Dragon_event *alt, *tmp, *ptr = &evbuf[frag_idx];
    Head_data *head;   Tail_data *tail;
    int i, j, max_ch, dt, abs_dt;
-   float sum, max;
+   float sum, max, dssd_front_e;
 
    // histogram of coincwin-size
    //dt = (frag_idx - win_idx + 2*EVT_BUFSIZE) %  EVT_BUFSIZE; ++frag_hist[dt];
@@ -928,10 +938,13 @@ int fill_coinc_histos(int win_idx, int frag_idx)
         for(i = 16; i < 32; i++){
             if( tail->dssd_energy[i] > 0 ) e_back_c->Fill(e_back_c, tail->dssd_energy[i], 1);
         }
+        dssd_front_e = 0;
         for(i = 0; i < 16; i++){
             for(j = 16; j < 32; j++){
-                if( tail->dssd_energy[i] > 0 && tail->dssd_energy[j] > 0 )
+                if( tail->dssd_energy[i] > 0 && tail->dssd_energy[j] > 0 ){
                     dssd_hit_pat_c->Fill(dssd_hit_pat_c, i, j-16, 1);
+                    if( tail->dssd_energy[i] > dssd_front_e ) dssd_front_e = tail->dssd_energy[i];
+                }
             }
         }
         for(i = 0; i < DSSD_MAXCHAN; i++){
@@ -942,12 +955,13 @@ int fill_coinc_histos(int win_idx, int frag_idx)
         // MCP (from tail)
         if( tail->mcptac_energy > 0 ) mcp_tac_c->Fill(mcp_tac_c, tail->mcptac_energy, 1);
         if( tail->mcp_time[0]   > 0 ) mcp_tdc_c->Fill(mcp_tdc_c, tail->mcp_time[0],   1);
-                                                                                                                                                           
+
         // IC (from tail)
         sum = 0;
         for(i = 0; i < IC_MAXCHAN; i++){ sum += tail->ic_energy[i]; }
         ic_sum_c->Fill(ic_sum_c, (int)sum, 1);
         tail->ic_sum = sum;
+        if( dssd_front_e > 0 ) ic_sum_vs_dssd_efront_c->Fill(ic_sum_vs_dssd_efront_c, dssd_front_e, (int)sum, 1);
         if( tail->ic_energy[0] > 0 && tail->ic_energy[1] > 0 )
             ic_0v1_c->Fill(ic_0v1_c, tail->ic_energy[0], tail->ic_energy[1], 1);
         for(i = 0; i < IC_MAXCHAN; i++){
@@ -955,13 +969,7 @@ int fill_coinc_histos(int win_idx, int frag_idx)
                 ic_anode_c->Fill(ic_anode_c, tail->ic_energy[i], i, 1);
         }
                            
-      //printf("\n");
-      sum = 0; for(i=0; i<IC_MAXCHAN; i++){ sum += tail->ic_energy[i]; }
-      ic_sum->Fill(ic_sum_c, (int)sum, 1);
-      tail->ic_sum = sum;
-      if( tail->ic_energy[0] > 0 && tail->ic_energy[1] > 0 ){
-         ic_0v1_c->Fill(ic_0v1_c, tail->ic_energy[0], tail->ic_energy[1], 1 );
-      }
+ 
    }
    return(0);
 }
