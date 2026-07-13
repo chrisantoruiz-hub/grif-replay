@@ -692,10 +692,15 @@ TH2I  *ic_sum_vs_dssd_efront;
 
 TH1I  *nai_ecal[2]; char *nai_title="";
 
+TH1I  *dssd_front_mult;
+TH1I  *dssd_back_mult;
+
 TH1I  *e_front_c;
 TH1I  *e_back_c;
 TH2I  *dssd_hit_pat_c;
 TH2I  *dssd_echan_c;
+TH1I  *dssd_front_mult_c;
+TH1I  *dssd_back_mult_c;
 
 TH1I  *mcp_tdc_c;
 TH1I  *mcp_tac_c;
@@ -739,6 +744,8 @@ int init_histos(Config *cfg)
     // DSSD Histograms
     e_front = H1_BOOK(cfg, "E_front", "DSSD Front Strip Energy", 1024, 0, 4096);
     e_back  = H1_BOOK(cfg, "E_back", "DSSD Back Strip Energy", 1024, 0, 4096);
+    dssd_front_mult = H1_BOOK(cfg, "DSSD_front_mult", "DSSD Front Strip Multiplicity", 8, 0, 8);
+    dssd_back_mult  = H1_BOOK(cfg, "DSSD_back_mult",  "DSSD Back Strip Multiplicity",  8, 0, 8);
     dssd_hit_pat = H2_BOOK(cfg, "dssd_hit_pat", "DSSD Hit Pattern", 16, 0, 16, 16, 0, 16);
     dssd_echan   = H2_BOOK(cfg, "dssd_echan", "DSSD Channel vs Energy", 1024, 0, 4096, DSSD_MAXCHAN, 0, DSSD_MAXCHAN);
     
@@ -777,6 +784,8 @@ int init_histos(Config *cfg)
     // DSSD Coincidence Histograms
     e_front_c  = H1_BOOK(cfg, "E_front_c",     "DSSD Front Strip Energy (coinc)", 1024, 0, 4096);
     e_back_c   = H1_BOOK(cfg, "E_back_c",      "DSSD Back Strip Energy (coinc)",  1024, 0, 4096);
+    dssd_front_mult_c = H1_BOOK(cfg, "DSSD_front_mult_c", "DSSD Front Strip Multiplicity (coinc)", 8, 0, 8);
+    dssd_back_mult_c  = H1_BOOK(cfg, "DSSD_back_mult_c",  "DSSD Back Strip Multiplicity (coinc)",  8, 0, 8);
     dssd_hit_pat_c = H2_BOOK(cfg, "dssd_hit_pat_c", "DSSD Hit Pattern (coinc)",   16, 0, 16, 16, 0, 16);
     dssd_echan_c   = H2_BOOK(cfg, "dssd_echan_c",   "DSSD Channel vs Energy (coinc)", 1024, 0, 4096, DSSD_MAXCHAN, 0, DSSD_MAXCHAN);
       
@@ -848,6 +857,10 @@ int fill_singles_histos(Dragon_event *ptr)
          for(i = 16; i < 32; i++){
              if( tail->dssd_energy[i] > 0 ) e_back->Fill(e_back, tail->dssd_energy[i], 1);
          }
+         cnt = 0; for(i = 0; i < 16; i++){ if( tail->dssd_energy[i] > 0 ) cnt++; }
+         dssd_front_mult->Fill(dssd_front_mult, cnt, 1);
+         cnt = 0; for(i = 16; i < 32; i++){ if( tail->dssd_energy[i] > 0 ) cnt++; }
+         dssd_back_mult->Fill(dssd_back_mult, cnt, 1);
          for(i = 0; i < DSSD_MAXCHAN; i++){
              if( tail->dssd_energy[i] > 0 )
                  dssd_echan->Fill(dssd_echan, tail->dssd_energy[i], i, 1);
@@ -890,7 +903,7 @@ int fill_coinc_histos(int win_idx, int frag_idx)
 {
    Dragon_event *alt, *tmp, *ptr = &evbuf[frag_idx];
    Head_data *head;   Tail_data *tail;
-   int i, j, max_ch, dt, abs_dt;
+   int i, j, max_ch, dt, abs_dt, cnt;
    float sum, max, dssd_front_e;
 
    // histogram of coincwin-size
@@ -951,6 +964,10 @@ int fill_coinc_histos(int win_idx, int frag_idx)
             if( tail->dssd_energy[i] > 0 )
                 dssd_echan_c->Fill(dssd_echan_c, tail->dssd_energy[i], i, 1);
         }
+        cnt = 0; for(i = 0;  i < 16; i++){ if( tail->dssd_energy[i] > 0 ) cnt++; }
+        dssd_front_mult_c->Fill(dssd_front_mult_c, cnt, 1);
+        cnt = 0; for(i = 16; i < 32; i++){ if( tail->dssd_energy[i] > 0 ) cnt++; }
+        dssd_back_mult_c->Fill(dssd_back_mult_c, cnt, 1);
 
         // MCP (from tail)
         if( tail->mcptac_energy > 0 ) mcp_tac_c->Fill(mcp_tac_c, tail->mcptac_energy, 1);
