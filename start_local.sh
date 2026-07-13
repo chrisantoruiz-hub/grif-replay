@@ -5,12 +5,12 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VIEWER_DIR="/Users/chris/Work/SpectrumViewer"
 URL="http://localhost:9000/analyzerInterface.html?backend=localhost&port=9093"
 
-if [ -x "$SCRIPT_DIR/grif-replay" ]; then
-    echo "Starting grif-replay server..."
-    "$SCRIPT_DIR/grif-replay" &
+if [ -x "$SCRIPT_DIR/dragon-replay" ]; then
+    echo "Starting dragon-replay server..."
+    "$SCRIPT_DIR/dragon-replay" &
     REPLAY_PID=$!
 else
-    echo "grif-replay binary not found, assuming already running."
+    echo "dragon-replay binary not found, assuming already running."
     REPLAY_PID=""
 fi
 
