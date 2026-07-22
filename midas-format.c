@@ -541,7 +541,7 @@ int next_bank(Sort_status *arg, char **bank_name) // loop over banks in event
       }
       if( allbank_head.allbanksize > 65535 || allbank_head.allbanksize < 16 ){
          // something wrong - ignore this event
-         fprintf(stderr,"BAD allbanksize: %d\n", allbank_head.allbanksize );
+         //fprintf(stderr,"BAD allbanksize: %d\n", allbank_head.allbanksize );
 	 return(-1);
       }
       recbufpos += sizeof(Midas_allbank_header);

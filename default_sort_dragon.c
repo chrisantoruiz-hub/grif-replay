@@ -16,6 +16,18 @@
 
 extern Dragon_event evbuf[EVT_BUFSIZE];
 
+static int sort_event_count = 0;
+int get_sort_event_count(void){ return sort_event_count; }
+
+static FILE *sb0_file = NULL;
+void open_sb0_file(void){
+   sb0_file = fopen("sb0_singles.dat", "w");
+   if( sb0_file == NULL ){ perror("fopen sb0_singles.dat"); }
+}
+void close_sb0_file(void){
+   if( sb0_file != NULL ){ fclose(sb0_file); sb0_file = NULL; }
+}
+
 // NOTE Dragon use 20Mhz clock for the io32 timestamps => 50ns per tick
 int presort_window_width = 200;  // 10us is dragon default window
 int sort_window_width    = 200;  // 10us - MAXIMUM (indiv. gates can be smaller)
@@ -118,8 +130,8 @@ int tail_adc_dettype[2*V792_MAXCHAN]; int tail_adc_dstchan[2*V792_MAXCHAN];
 int tail_tdc_dettype[ V1190_MAXCHAN]; int tail_tdc_dstchan[ V1190_MAXCHAN];
 
 static char subsys_name[16][8]={
-   "   BGO", "    SB", "   NAI", "  DSSD",   "    IC", "   MCP", " MCPTAC", "    GE", "  XTDC",
-   " RFTDC", "  TDC0", "", "",   "", "", ""
+   "", "   BGO", "    SB", "   NAI", "  DSSD", "    IC", "   MCP", " MCPTAC", "    GE", "  XTDC",
+   " RFTDC", "  TDC0", "", "",   "", ""
 };
 
 int add_v1190_item(int v1190_chan, int subsys_type, int subsys_chan, int *tdc_dettype, int *tdc_dstchan)
@@ -137,7 +149,6 @@ int add_v1190_item(int v1190_chan, int subsys_type, int subsys_chan, int *tdc_de
 }
 int add_v792_item(int v792_chan, int v792_module, int subsys_type, int subsys_chan, int *adc_dettype, int *adc_dstchan)
 {
-   printf("Add V792 Chan[%d,%d] Sys[%d] Dstchan[%d]\n", v792_chan, v792_module, subsys_type, subsys_chan);
    if( v792_module < 0 || v792_module > 1 ){
       printf("read_dragon_odb: invalid %s v792 module number:%d\n",
              subsys_name[subsys_type], v792_module); return(-1);
@@ -291,8 +302,8 @@ int read_dragon_odb(int bank_len, int *bank_data)
    if( err ){ printf("read_dragon_odb: %d errors\n", err); }
 
    // generate derived tables ---------------------------------
-   memset(head_adc_dettype, -1,   V792_MAXCHAN*sizeof(int) );
-   memset(head_adc_dstchan, -1,   V792_MAXCHAN*sizeof(int) );
+   memset(head_adc_dettype, -1, 2*V792_MAXCHAN*sizeof(int) );
+   memset(head_adc_dstchan, -1, 2*V792_MAXCHAN*sizeof(int) );
    memset(head_tdc_dettype, -1,  V1190_MAXCHAN*sizeof(int) );
    memset(head_tdc_dstchan, -1,  V1190_MAXCHAN*sizeof(int) );
    memset(tail_adc_dettype, -1, 2*V792_MAXCHAN*sizeof(int) );
@@ -369,6 +380,57 @@ int read_dragon_odb(int bank_len, int *bank_data)
       add_v792_item(chan, mcptac_adc_module, SUBSYS_MCPTAC, 0, tail_adc_dettype, tail_adc_dstchan);
    }
 
+   printf("--- Raw ODB channel assignments ---\n");
+   for(i=0; i<BGO_MAXCHAN; i++){
+      if( bgo_adc_chan[i] != -1 )
+         printf("  ODB BGO[%d]: HEAD ADC mod %d ch %d\n", i, bgo_adc_module[i], bgo_adc_chan[i]);
+   }
+   for(i=0; i<SB_MAXCHAN; i++){
+      if( sb_adc_chan[i] != -1 )
+         printf("  ODB  SB[%d]: TAIL ADC mod %d ch %d\n", i, sb_adc_module[i], sb_adc_chan[i]);
+   }
+   for(i=0; i<NAI_MAXCHAN; i++){
+      if( nai_adc_chan[i] != -1 )
+         printf("  ODB NaI[%d]: TAIL ADC mod %d ch %d\n", i, nai_adc_module[i], nai_adc_chan[i]);
+   }
+   for(i=0; i<DSSD_MAXCHAN; i++){
+      if( dssd_adc_chan[i] != -1 )
+         printf("  ODB DSSD[%2d]: TAIL ADC mod %d ch %d\n", i, dssd_adc_module[i], dssd_adc_chan[i]);
+   }
+   for(i=0; i<IC_MAXCHAN; i++){
+      if( ic_adc_chan[i] != -1 )
+         printf("  ODB  IC[%d]: TAIL ADC mod %d ch %d\n", i, ic_adc_module[i], ic_adc_chan[i]);
+   }
+   for(i=0; i<MCP_MAXCHAN; i++){
+      if( mcp_adc_chan[i] != -1 )
+         printf("  ODB MCP[%d]: TAIL ADC mod %d ch %d\n", i, mcp_adc_module[i], mcp_adc_chan[i]);
+   }
+   if( mcptac_adc_chan != -1 )
+      printf("  ODB MCPTAC: TAIL ADC mod %d ch %d\n", mcptac_adc_module, mcptac_adc_chan);
+   if( ge_adc_chan != -1 )
+      printf("  ODB GE: TAIL ADC mod %d ch %d\n", ge_adc_module, ge_adc_chan);
+
+   printf("--- ADC channel mapping (HEAD) ---\n");
+   for(i=0; i<2*V792_MAXCHAN; i++){
+      if( head_adc_dettype[i] != -1 )
+         printf("  head ADC mod %d ch %2d -> %s chan %d\n", i/V792_MAXCHAN, i%V792_MAXCHAN, subsys_name[head_adc_dettype[i]], head_adc_dstchan[i]);
+   }
+   printf("--- ADC channel mapping (TAIL) ---\n");
+   for(i=0; i<2*V792_MAXCHAN; i++){
+      if( tail_adc_dettype[i] != -1 )
+         printf("  tail ADC mod %d ch %2d -> %s chan %d\n", i/V792_MAXCHAN, i%V792_MAXCHAN, subsys_name[tail_adc_dettype[i]], tail_adc_dstchan[i]);
+   }
+   printf("--- TDC channel mapping (HEAD) ---\n");
+   for(i=0; i<V1190_MAXCHAN; i++){
+      if( head_tdc_dettype[i] != -1 )
+         printf("  head TDC ch %2d -> %s chan %d\n", i, subsys_name[head_tdc_dettype[i]], head_tdc_dstchan[i]);
+   }
+   printf("--- TDC channel mapping (TAIL) ---\n");
+   for(i=0; i<V1190_MAXCHAN; i++){
+      if( tail_tdc_dettype[i] != -1 )
+         printf("  tail TDC ch %2d -> %s chan %d\n", i, subsys_name[tail_tdc_dettype[i]], tail_tdc_dstchan[i]);
+   }
+
    return(0);
 }
 
@@ -384,6 +446,7 @@ int init_default_histos(Config *cfg, Sort_status *arg)
    init_parameters_from_globals(cfg);
    init_chan_histos(cfg);
    init_histos(cfg);
+   //open_sb0_file();
 
    return(0);
 }
@@ -593,14 +656,9 @@ int init_chan_histos(Config *cfg)
 
 int fill_chan_histos(Dragon_event *ptr)
 {
-   static int event;
    int i, j, count, chan, val, *data;
 
-   //if( ++event < 16384 ){
-   //   //ts_hist -> Fill(ts_hist, event,  (int)(ptr->ts/100));
-   //} else if( (event % 1000) == 0 ){
-   //   //ts_hist -> Fill(ts_hist, 16367+(int)(event/1000),  (int)(ptr->ts/100));
-   //}
+   ++sort_event_count;
 
    //hit_hist[0]   -> Fill(hit_hist[0],    chan,            1);
    //if( ptr->ecal        >= 1 ){ hit_hist[1] -> Fill(hit_hist[1], chan, 1);
@@ -848,7 +906,10 @@ int fill_singles_histos(Dragon_event *ptr)
 
    } else if(  ptr->type == TAIL_EVENT ){
       for(i=0; i<SB_MAXCHAN; i++){
-         if( tail->sb_energy[i] > 0 ) sb_ecal[i]->Fill(sb_ecal[i], tail->sb_energy[i], 1);
+         if( tail->sb_energy[i] > 0 ){
+            //if( i == 0 && sb0_file != NULL ) fprintf(sb0_file, "%d %.1f\n", sort_event_count, tail->sb_energy[0]);
+            sb_ecal[i]->Fill(sb_ecal[i], tail->sb_energy[i], 1);
+         }
       }
        // DSSD
          for(i = 0; i < 16; i++){

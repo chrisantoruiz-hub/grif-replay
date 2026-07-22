@@ -80,6 +80,8 @@ extern void grif_main(Sort_status *arg);
 extern void reorder_main(Sort_status *arg);
 extern void reorder_out(Sort_status *arg);
 extern void sort_main(Sort_status *arg);
+extern int get_sort_event_count(void);
+extern void close_sb0_file(void);
 static pthread_t midas_thread, grif_thread, ordthrd, ordthr2;
 static int reorder_save, singlethread_save, sortthread_save;
 extern int (*midas_module_main)(Sort_status *);
@@ -254,6 +256,9 @@ void sort_main(Sort_status *arg)
       nxtpos = ++evbuf_nxtpos % EVT_BUFSIZE;
    }
    printf("sort_main finished\n");
+   //close_sb0_file();
+   printf("First event sorted: 1\n");
+   printf("Last event sorted:  %d\n", get_sort_event_count());
    return;}
 
 static int proc_calls, sorted, skipped, prefull, sortfull, completed_events;
