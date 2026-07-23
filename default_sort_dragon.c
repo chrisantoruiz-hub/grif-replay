@@ -446,7 +446,7 @@ int init_default_histos(Config *cfg, Sort_status *arg)
    init_parameters_from_globals(cfg);
    init_chan_histos(cfg);
    init_histos(cfg);
-   //open_sb0_file();
+   open_sb0_file();
 
    return(0);
 }
@@ -907,7 +907,7 @@ int fill_singles_histos(Dragon_event *ptr)
    } else if(  ptr->type == TAIL_EVENT ){
       for(i=0; i<SB_MAXCHAN; i++){
          if( tail->sb_energy[i] > 0 ){
-            //if( i == 0 && sb0_file != NULL ) fprintf(sb0_file, "%d %.1f\n", sort_event_count, tail->sb_energy[0]);
+            if( i == 0 && sb0_file != NULL ) fprintf(sb0_file, "%d %.1f %ld\n", sort_event_count, tail->sb_energy[0], ptr->ts);
             sb_ecal[i]->Fill(sb_ecal[i], tail->sb_energy[i], 1);
          }
       }

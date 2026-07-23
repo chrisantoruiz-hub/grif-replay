@@ -256,7 +256,7 @@ void sort_main(Sort_status *arg)
       nxtpos = ++evbuf_nxtpos % EVT_BUFSIZE;
    }
    printf("sort_main finished\n");
-   //close_sb0_file();
+   close_sb0_file();
    printf("First event sorted: 1\n");
    printf("Last event sorted:  %d\n", get_sort_event_count());
    return;}
