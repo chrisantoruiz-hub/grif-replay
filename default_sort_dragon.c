@@ -1029,10 +1029,11 @@ int fill_coinc_histos(int win_idx, int frag_idx)
       // }
        
        // DSSD (from tail)
+        cnt = 0; for(i = 0; i < 16; i++){ if( tail->dssd_energy[i] > 0 ) cnt++; }
         for(i = 0; i < 16; i++){
             if( tail->dssd_energy[i] > 0 ){
                e_front_c->Fill(e_front_c, tail->dssd_energy[i], 1);
-               if( dssd_efront_c_file != NULL ) fprintf(dssd_efront_c_file, "%d %.1f %ld\n", sort_event_count, tail->dssd_energy[i], alt->ts);
+               if( dssd_efront_c_file != NULL ) fprintf(dssd_efront_c_file, "%d %.1f %ld %d\n", sort_event_count, tail->dssd_energy[i], alt->ts, cnt);
             }
         }
         for(i = 16; i < 32; i++){
@@ -1051,7 +1052,6 @@ int fill_coinc_histos(int win_idx, int frag_idx)
             if( tail->dssd_energy[i] > 0 )
                 dssd_echan_c->Fill(dssd_echan_c, tail->dssd_energy[i], i, 1);
         }
-        cnt = 0; for(i = 0;  i < 16; i++){ if( tail->dssd_energy[i] > 0 ) cnt++; }
         dssd_front_mult_c->Fill(dssd_front_mult_c, cnt, 1);
         cnt = 0; for(i = 16; i < 32; i++){ if( tail->dssd_energy[i] > 0 ) cnt++; }
         dssd_back_mult_c->Fill(dssd_back_mult_c, cnt, 1);
