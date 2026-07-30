@@ -37,6 +37,15 @@ void close_dssd_efront_file(void){
    if( dssd_efront_file != NULL ){ fclose(dssd_efront_file); dssd_efront_file = NULL; }
 }
 
+static FILE *dssd_efront_c_file = NULL;
+void open_dssd_efront_c_file(void){
+   dssd_efront_c_file = fopen("dssd_efront_coinc.dat", "w");
+   if( dssd_efront_c_file == NULL ){ perror("fopen dssd_efront_coinc.dat"); }
+}
+void close_dssd_efront_c_file(void){
+   if( dssd_efront_c_file != NULL ){ fclose(dssd_efront_c_file); dssd_efront_c_file = NULL; }
+}
+
 // NOTE Dragon use 20Mhz clock for the io32 timestamps => 50ns per tick
 int presort_window_width = 200;  // 10us is dragon default window
 int sort_window_width    = 200;  // 10us - MAXIMUM (indiv. gates can be smaller)
@@ -457,6 +466,7 @@ int init_default_histos(Config *cfg, Sort_status *arg)
    init_histos(cfg);
    open_sb0_file();
    open_dssd_efront_file();
+   open_dssd_efront_c_file();
 
    return(0);
 }
@@ -1020,7 +1030,10 @@ int fill_coinc_histos(int win_idx, int frag_idx)
        
        // DSSD (from tail)
         for(i = 0; i < 16; i++){
-            if( tail->dssd_energy[i] > 0 ) e_front_c->Fill(e_front_c, tail->dssd_energy[i], 1);
+            if( tail->dssd_energy[i] > 0 ){
+               e_front_c->Fill(e_front_c, tail->dssd_energy[i], 1);
+               if( dssd_efront_c_file != NULL ) fprintf(dssd_efront_c_file, "%d %.1f %ld\n", sort_event_count, tail->dssd_energy[i], alt->ts);
+            }
         }
         for(i = 16; i < 32; i++){
             if( tail->dssd_energy[i] > 0 ) e_back_c->Fill(e_back_c, tail->dssd_energy[i], 1);
