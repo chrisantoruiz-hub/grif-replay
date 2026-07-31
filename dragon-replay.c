@@ -84,6 +84,8 @@ extern int get_sort_event_count(void);
 extern void close_sb0_file(void);
 extern void close_dssd_efront_file(void);
 extern void close_dssd_efront_c_file(void);
+extern void close_ic_sum_file(void);
+extern void close_ic_sum_c_file(void);
 static pthread_t midas_thread, grif_thread, ordthrd, ordthr2;
 static int reorder_save, singlethread_save, sortthread_save;
 extern int (*midas_module_main)(Sort_status *);
@@ -261,6 +263,8 @@ void sort_main(Sort_status *arg)
    close_sb0_file();
    close_dssd_efront_file();
    close_dssd_efront_c_file();
+   close_ic_sum_file();
+   close_ic_sum_c_file();
    printf("First event sorted: 1\n");
    printf("Last event sorted:  %d\n", get_sort_event_count());
    return;}

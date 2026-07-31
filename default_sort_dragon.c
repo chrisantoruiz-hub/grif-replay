@@ -46,6 +46,24 @@ void close_dssd_efront_c_file(void){
    if( dssd_efront_c_file != NULL ){ fclose(dssd_efront_c_file); dssd_efront_c_file = NULL; }
 }
 
+static FILE *ic_sum_file = NULL;
+void open_ic_sum_file(void){
+   ic_sum_file = fopen("ic_sum_singles.dat", "w");
+   if( ic_sum_file == NULL ){ perror("fopen ic_sum_singles.dat"); }
+}
+void close_ic_sum_file(void){
+   if( ic_sum_file != NULL ){ fclose(ic_sum_file); ic_sum_file = NULL; }
+}
+
+static FILE *ic_sum_c_file = NULL;
+void open_ic_sum_c_file(void){
+   ic_sum_c_file = fopen("ic_sum_coinc.dat", "w");
+   if( ic_sum_c_file == NULL ){ perror("fopen ic_sum_coinc.dat"); }
+}
+void close_ic_sum_c_file(void){
+   if( ic_sum_c_file != NULL ){ fclose(ic_sum_c_file); ic_sum_c_file = NULL; }
+}
+
 // NOTE Dragon use 20Mhz clock for the io32 timestamps => 50ns per tick
 int presort_window_width = 200;  // 10us is dragon default window
 int sort_window_width    = 200;  // 10us - MAXIMUM (indiv. gates can be smaller)
@@ -467,6 +485,8 @@ int init_default_histos(Config *cfg, Sort_status *arg)
    open_sb0_file();
    open_dssd_efront_file();
    open_dssd_efront_c_file();
+   open_ic_sum_file();
+   open_ic_sum_c_file();
 
    return(0);
 }
@@ -965,6 +985,7 @@ int fill_singles_histos(Dragon_event *ptr)
          sum = 0;
          for(i = 0; i < IC_MAXCHAN; i++){ sum += tail->ic_energy[i]; }
          ic_sum->Fill(ic_sum, (int)sum, 1);
+         if( ic_sum_file != NULL ) fprintf(ic_sum_file, "%d %.1f %ld\n", sort_event_count, sum, ptr->ts);
          if( dssd_front_e > 0 ) ic_sum_vs_dssd_efront->Fill(ic_sum_vs_dssd_efront, dssd_front_e, (int)sum, 1);
          if( tail->ic_energy[0] > 0 && tail->ic_energy[1] > 0 )
              ic_0v1->Fill(ic_0v1, tail->ic_energy[0], tail->ic_energy[1], 1);
@@ -1064,6 +1085,7 @@ int fill_coinc_histos(int win_idx, int frag_idx)
         sum = 0;
         for(i = 0; i < IC_MAXCHAN; i++){ sum += tail->ic_energy[i]; }
         ic_sum_c->Fill(ic_sum_c, (int)sum, 1);
+        if( ic_sum_c_file != NULL ) fprintf(ic_sum_c_file, "%d %.1f %ld\n", sort_event_count, sum, alt->ts);
         tail->ic_sum = sum;
         if( dssd_front_e > 0 ) ic_sum_vs_dssd_efront_c->Fill(ic_sum_vs_dssd_efront_c, dssd_front_e, (int)sum, 1);
         if( tail->ic_energy[0] > 0 && tail->ic_energy[1] > 0 )
