@@ -1033,7 +1033,7 @@ int fill_coinc_histos(int win_idx, int frag_idx)
         for(i = 0; i < 16; i++){
             if( tail->dssd_energy[i] > 0 ){
                e_front_c->Fill(e_front_c, tail->dssd_energy[i], 1);
-               if( dssd_efront_c_file != NULL ) fprintf(dssd_efront_c_file, "%d %.1f %ld %d\n", sort_event_count, tail->dssd_energy[i], alt->ts, cnt);
+               if( dssd_efront_c_file != NULL ) fprintf(dssd_efront_c_file, "%d %.1f %ld %d %d\n", sort_event_count, tail->dssd_energy[i], alt->ts, cnt, i);
             }
         }
         for(i = 16; i < 32; i++){
