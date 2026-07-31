@@ -22,7 +22,7 @@ port_in_use() { nc -z localhost $1 2>/dev/null; }
 kill_stale_port() {
     local port=$1
     local pids
-    pids=$(lsof -tiTCP:$port -sTCP:LISTEN 2>/dev/null)
+    pids=$(lsof -tiTCP:$port -sTCP:LISTEN 2>/dev/null) || true
     if [[ -n $pids ]]; then
         echo "Killing stale process(es) on port $port: $pids"
         kill $pids 2>/dev/null
