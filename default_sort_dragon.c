@@ -829,7 +829,8 @@ TH2I  *ic_anode_c;
 
 TH2I  *ic_sum_vs_dssd_efront_c;
 
-TH1I  *xtofh;  // gamma to hvy-ion
+TH1I  *xtofh;         // gamma to hvy-ion, fine (TDC)
+TH1I  *xtofh_coarse;  // gamma to hvy-ion, coarse (io32 timestamp ticks, 50ns each)
 TH1I  *xtofg;  // hvy-ion to gamma
 
 TH1I  *bgo_chan;
@@ -925,8 +926,9 @@ int init_histos(Config *cfg)
     bgo_e0_e1_c = H2_BOOK(cfg, "BGO_E0_E1_c",   "BGO Cascade", ADC_BINS, 0, ADC_BINS, ADC_BINS, 0, ADC_BINS);
     
     // Cross-Trigger Coincidence Histograms
-    xtofh    = H1_BOOK(cfg, "XTOFH",    "Separator TOF (gamma->HI)", 5000, -10000, 9999);
-    xtofg    = H1_BOOK(cfg, "XTOFG",    "Separator TOF (HI->gamma)", 5000, -10000, 9999);
+    xtofh        = H1_BOOK(cfg, "XTOFH",        "Separator TOF fine (gamma->HI)",   4096, 0, 4096);
+    xtofh_coarse = H1_BOOK(cfg, "XTOFH_coarse", "Separator TOF coarse (gamma->HI)", 400, -200, 200);
+    xtofg        = H1_BOOK(cfg, "XTOFG",        "Separator TOF (HI->gamma)",        5000, -10000, 9999);
     bgo_zpat = H1_BOOK(cfg, "BGO_ZPAT", "BGO Z HITPATTERN", 100, -50, 49);
     
 
@@ -1059,7 +1061,8 @@ int fill_coinc_histos(int win_idx, int frag_idx)
          }
       }
 
-      xtofh->Fill(xtofh, dt, 1);
+      printf("xtofh_coarse: event %d dt=%d\n", sort_event_count, dt);
+      xtofh_coarse->Fill(xtofh_coarse, dt, 1);
       xtofg->Fill(xtofg, dt, 1); // need to figure out how to properly fill this
 
       // BGO (from head) - sorted arrays populated by pre_sort_exit
