@@ -913,7 +913,7 @@ int init_histos(Config *cfg)
     ic_anode_c = H2_BOOK(cfg, "IC_anode_c",      "IC Energy vs Anode",            512, 0, 4096, 4, 0, 4);
     
     // IC vs DSSD (for Hybrid)
-    ic_sum_vs_dssd_efront_c = H2_BOOK(cfg, "IC_Sum_vs_Dssd_E_front_c","IC Sum energy vs DSSD Front energy", 512, 0, 4096, 512, 0, 4096 );
+    ic_sum_vs_dssd_efront_c = H2_BOOK(cfg, "IC_Sum_vs_Dssd_E_front_c","IC Sum energy vs DSSD Front energy (coinc)", 512, 0, 4096, 512, 0, 4096 );
     
     // MCP Coincidence Histograms
     mcp_tdc_c    = H1_BOOK(cfg, "MCP_TDC_c",    "MCP TDC (coinc)",               4096, 0, 4096);
