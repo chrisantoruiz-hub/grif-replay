@@ -1061,7 +1061,6 @@ int fill_coinc_histos(int win_idx, int frag_idx)
          }
       }
 
-      printf("xtofh_coarse: event %d dt=%d\n", sort_event_count, dt);
       xtofh_coarse->Fill(xtofh_coarse, dt, 1);
       xtofg->Fill(xtofg, dt, 1); // need to figure out how to properly fill this
 
